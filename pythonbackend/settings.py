@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+from datetime import timedelta
+from rest_framework.settings import api_settings
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,11 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    "corsheaders",
+    'knox',
+    'dogwalking.apps.DogwalkingConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -50,7 +56,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'pythonbackend.urls'
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication' ,
+        'knox.auth.TokenAuthentication',),
+}
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -80,6 +90,21 @@ DATABASES = {
 }
 
 
+KNOX_TOKEN_MODEL = 'knox.AuthToken'
+
+REST_KNOX = {
+  'SECURE_HASH_ALGORITHM': 'hashlib.sha512',
+  'AUTH_TOKEN_CHARACTER_LENGTH': 64,
+  'TOKEN_TTL': timedelta(hours=240),
+  'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+  'TOKEN_LIMIT_PER_USER': None,
+  'AUTO_REFRESH': True,
+  'AUTO_REFRESH_MAX_TTL': None,
+  'MIN_REFRESH_INTERVAL': 60,
+  'AUTH_HEADER_PREFIX': 'Token',
+  'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+  'TOKEN_MODEL': 'knox.AuthToken',
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -98,7 +123,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5000",
+]
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -120,3 +147,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+}
