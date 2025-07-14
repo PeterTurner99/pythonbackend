@@ -21,7 +21,7 @@
             "type": "debugpy",
             "request": "launch",
             "args": [
-                "runserver"
+                "makemigrations"
             ],
             "django": true,
             "autoStartBrowser": false,

@@ -1,3 +1,4 @@
 djangorestframework==3.16.0
 django-rest-knox==5.0.2
 django-cors-headers==4.7.0 
+dj-data-generator==1.0.2
