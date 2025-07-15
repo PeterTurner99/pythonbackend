@@ -16,6 +16,18 @@ class Check(APIView):
     def post(self, request):
         return Response({})
 
+class ViewProfile(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        return_dict = {
+            'email': user.email ,
+            'username': user.username ,
+            'max_bookings_at_once': user.max_bookings_at_once ,
+        }
+        return Response(return_dict)
+    
+
 
 class Register(APIView):
     permission_classes = [AllowAny]
