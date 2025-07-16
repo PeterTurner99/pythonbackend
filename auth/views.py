@@ -8,6 +8,7 @@ from django.contrib.auth.signals import user_logged_in
 from django.utils import timezone
 from knox.models import get_token_model
 from knox.settings import knox_settings
+from .serializers import UserSerializer
 
 
 class Check(APIView):
@@ -16,17 +17,33 @@ class Check(APIView):
     def post(self, request):
         return Response({})
 
+
 class ViewProfile(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
         return_dict = {
-            'email': user.email ,
-            'username': user.username ,
-            'max_bookings_at_once': user.max_bookings_at_once ,
+            "email": user.email,
+            "username": user.username,
+            "max_bookings_at_once": user.max_bookings_at_once,
         }
         return Response(return_dict)
-    
+
+    def post(self, request):
+        data = request.data
+        user = request.user
+        userSerializer = UserSerializer(user, data)
+        if userSerializer.is_valid():
+            userSerializer.save()
+            return Response(
+                {
+                    "email": userSerializer.instance.email,
+                    "username": userSerializer.instance.username,
+                    "max_bookings_at_once": userSerializer.instance.max_bookings_at_once,
+                }
+            )
+        return Response(userSerializer.errors, status=400)
 
 
 class Register(APIView):
@@ -54,9 +71,7 @@ class Register(APIView):
                     status=status.HTTP_403_FORBIDDEN,
                 )
         instance, token = self.create_token()
-        user_logged_in.send(
-            sender=user_obj.__class__, request=request, user=user_obj
-        )
+        user_logged_in.send(sender=user_obj.__class__, request=request, user=user_obj)
         return self.get_post_response(user_obj, token, instance)
 
     def get_context(self):
