@@ -4,6 +4,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from auth.models import Flag
+from auth.utils import check_flag
 from .forms import RegistrationForm
 from rest_framework.serializers import DateTimeField
 from django.contrib.auth.signals import user_logged_in
@@ -127,6 +130,8 @@ class GoogleLogin(APIView):
     authentication_classes = []
 
     def post(self, request):
+        if not check_flag('google_login'):
+            return Response(status=404)
         token = request.data.get("credential")
         try:
             user_data = id_token.verify_oauth2_token(
@@ -197,3 +202,14 @@ class GoogleLogin(APIView):
     def get_post_response(self, user, token, instance):
         data = self.get_post_response_data(user, token, instance)
         return Response(data)
+
+
+class FlagView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        queryParams = request.query_params.dict()
+        flag_name = queryParams.get("flag_name")
+        flag_filter = Flag.objects.filter(name=flag_name)
+        if flag_filter.exists():
+            return Response({"result": flag_filter.first().active})
+        return Response({"result": False})
