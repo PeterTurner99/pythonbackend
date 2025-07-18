@@ -14,7 +14,10 @@ from .serializers import UserSerializer
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
+
+
 class Check(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -120,23 +123,27 @@ class Register(APIView):
 
 
 class GoogleLogin(APIView):
-    def post(self,request):
-        token = request.data.get('credential')
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        token = request.data.get("credential")
         try:
-            user_data  = id_token.verify_oauth2_token(token, requests.Request(),settings.GOOGLE_OAUTH_CLIENT_ID)
+            user_data = id_token.verify_oauth2_token(
+                token, requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID
+            )
         except ValueError:
-            return Response({"error": "Invalid login details."},status=403)
-        email = user_data.get('email')
-        first_name= user_data.get("given_name")
+            return Response({"error": "Invalid login details."}, status=403)
+        email = user_data.get("email")
+        first_name = user_data.get("given_name")
         user_filter = User.objects.filter(email=email)
         if user_filter.exists():
             user_obj = user_filter.first()
         else:
-            user_obj = User.objects.create_user(username=email,first_name=first_name,email=email)
-        
-        
-        
-        
+            user_obj = User.objects.create_user(
+                username=email, first_name=first_name, email=email
+            )
+
         token_limit_per_user = self.get_token_limit_per_user()
         self.user = user_obj
         if token_limit_per_user is not None:
@@ -190,4 +197,3 @@ class GoogleLogin(APIView):
     def get_post_response(self, user, token, instance):
         data = self.get_post_response_data(user, token, instance)
         return Response(data)
-

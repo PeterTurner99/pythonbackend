@@ -169,7 +169,7 @@ LOGGING = {
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('Client_ID')
 if not GOOGLE_OAUTH_CLIENT_ID:
     raise ValueError(
-        'GOOGLE_OAUTH_CLIENT_ID is missing.'
+        'Client_ID environment variable is missing.'
         'Have you put it in a file at .env ?'
     )
 
