@@ -1,1 +1,7 @@
 /.venv
+db.sqlite3
+.gitignore
+auth/__pycache__/serializers.cpython-313.pyc
+auth/__pycache__/urls.cpython-313.pyc
+*/views.cpython-313.pyc
+.env

@@ -15,6 +15,7 @@
             "autoStartBrowser": false,
             "program": "${workspaceFolder}\\manage.py",
             "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
         },
         {
             "name": "Makemigrate",
@@ -25,7 +26,8 @@
             ],
             "django": true,
             "autoStartBrowser": false,
-            "program": "${workspaceFolder}\\manage.py"
+            "program": "${workspaceFolder}\\manage.py",
+            "envFile": "${workspaceFolder}/.env",
         },
         {
             "name": "Migrate",
@@ -36,6 +38,7 @@
                 "migrate"
             ],
             "django": true,
+            "envFile": "${workspaceFolder}/.env",
         },
         {
             "name": "MakeMigrate",
@@ -47,6 +50,7 @@
             ],
             "django": true,
             "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env",
         },
     ]
 }
